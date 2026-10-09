@@ -33,7 +33,16 @@ jobs:
             -dname "CN=Android Debug,O=Android,C=US"
 
       - name: Build Debug APK only
-        run: gradle assembleDebug --stacktrace --no-daemon
+        run: |
+          set -o pipefail
+          gradle assembleDebug --no-daemon --console=plain 2>&1 | tee build.log
+
+      - name: Show the real error
+        if: failure()
+        run: |
+          echo "=========== ASLI ERROR ==========="
+          grep -n -B2 -A15 "What went wrong" build.log || tail -n 60 build.log
+          echo "=================================="
 
       - name: Verify APK exists
         run: |
