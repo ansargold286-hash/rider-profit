@@ -1,0 +1,6 @@
+{
+  "name": "Rider Profit",
+  "description": "Financial management and profit tracker for Foodpanda delivery riders to log weekly earnings, petrol, bike maintenance, and net profit.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
