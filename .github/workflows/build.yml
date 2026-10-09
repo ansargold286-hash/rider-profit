@@ -19,7 +19,7 @@ jobs:
         distribution: 'temurin'
 
     - name: Build with Gradle
-      run: gradle assembleDebug -x validateSigningDebug --no-daemon
+      run: gradle packageDebug --no-daemon -x validateSigningDebug
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
