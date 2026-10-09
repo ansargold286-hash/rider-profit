@@ -17,35 +17,32 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Set up Gradle
+      - name: Set up Gradle 9.3.1
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: 8.9
+          gradle-version: 9.3.1
 
-      - name: Create Gradle wrapper if missing
-        run: |
-          if [ ! -f gradlew ]; then
-            gradle wrapper --gradle-version 8.9
-          fi
-          chmod +x gradlew
+      - name: Create .env file
+        run: echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env
 
-      - name: Generate debug keystore
+      - name: Generate debug keystore at expected path
         run: |
-          keytool -genkeypair -v -keystore debug.keystore \
+          keytool -genkeypair -v -keystore "$GITHUB_WORKSPACE/debug.keystore" \
             -alias androiddebugkey -storepass android -keypass android \
             -keyalg RSA -keysize 2048 -validity 10000 \
             -dname "CN=Android Debug,O=Android,C=US"
 
       - name: Build Debug APK only
-        run: ./gradlew assembleDebug --stacktrace
+        run: gradle assembleDebug --stacktrace --no-daemon
 
-      - name: Find generated APK
+      - name: Verify APK exists
         run: |
-          find . -name "*.apk" -path "*debug*" | tee apk_list.txt
-          test -s apk_list.txt
+          ls -l app/build/outputs/apk/debug/
+          test -n "$(find app/build/outputs/apk/debug -name '*.apk' | head -1)"
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: debug-apk
-          path: "**/build/outputs/apk/debug/*.apk"
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
